@@ -1,4 +1,3 @@
-from distutils.util import strtobool
 from rest_framework.request import Request
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
@@ -14,13 +13,21 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
-
+from django.core.mail import send_mail
+from django.conf import settings
 from backend.models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
     Contact, ConfirmEmailToken
 from backend.serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
     OrderItemSerializer, OrderSerializer, ContactSerializer
 from backend.signals import new_user_registered, new_order
 
+def str_to_bool(value):
+    if isinstance(value, str):
+        if value.lower() in ('yes', 'y', 'true', 't', '1'):
+            return True
+        elif value.lower() in ('no', 'n', 'false', 'f', '0'):
+            return False
+    raise ValueError(f"Invalid truth value: {value}")
 
 class RegisterAccount(APIView):
     """
@@ -61,6 +68,7 @@ class RegisterAccount(APIView):
                     user = user_serializer.save()
                     user.set_password(request.data['password'])
                     user.save()
+
                     return JsonResponse({'Status': True})
                 else:
                     return JsonResponse({'Status': False, 'Errors': user_serializer.errors})
@@ -510,7 +518,8 @@ class PartnerState(APIView):
         state = request.data.get('state')
         if state:
             try:
-                Shop.objects.filter(user_id=request.user.id).update(state=strtobool(state))
+                bool_state = str_to_bool(state)
+                Shop.objects.filter(user_id=request.user.id).update(state=bool_state)
                 return JsonResponse({'Status': True})
             except ValueError as error:
                 return JsonResponse({'Status': False, 'Errors': str(error)})
