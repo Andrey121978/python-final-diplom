@@ -21,6 +21,7 @@ from backend.serializers import UserSerializer, CategorySerializer, ShopSerializ
     OrderItemSerializer, OrderSerializer, ContactSerializer
 from backend.signals import new_user_registered, new_order
 
+
 def str_to_bool(value):
     if isinstance(value, str):
         if value.lower() in ('yes', 'y', 'true', 't', '1'):
@@ -68,6 +69,8 @@ class RegisterAccount(APIView):
                     user = user_serializer.save()
                     user.set_password(request.data['password'])
                     user.save()
+
+
 
                     return JsonResponse({'Status': True})
                 else:

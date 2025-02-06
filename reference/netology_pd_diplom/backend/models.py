@@ -4,6 +4,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_rest_passwordreset.tokens import get_token_generator
+from .tasks import send_password_reset_email, send_email_confirmation
 
 STATE_CHOICES = (
     ('basket', 'Статус корзины'),
