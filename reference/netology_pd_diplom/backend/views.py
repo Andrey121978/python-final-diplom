@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.request import Request
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
@@ -70,9 +71,9 @@ class RegisterAccount(APIView):
                     user.set_password(request.data['password'])
                     user.save()
 
+                    return Response({"id": user.id, "email": user.email}, status=status.HTTP_201_CREATED)
 
 
-                    return JsonResponse({'Status': True})
                 else:
                     return JsonResponse({'Status': False, 'Errors': user_serializer.errors})
 
